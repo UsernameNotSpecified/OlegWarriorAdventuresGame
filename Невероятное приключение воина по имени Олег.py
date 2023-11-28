@@ -145,5 +145,7 @@ def room_geniration():
         canvas_room.coords(4, 60, 180)
         canvas_room.tag_bind(3, '<Button-1>', leave_room)
         canvas_room.tag_bind(2, '<Button-1>', open_chest_window)
+
 room_geniration()
+
 adventure_window.mainloop()
