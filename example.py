@@ -1,4 +1,5 @@
 from tkinter import *
+from random import *
 
 adventure_window = Tk()
 hp = 10
