@@ -45,8 +45,10 @@ canvas_text.create_text(630, 50, text = 'Твои монеты: {0}'.format(coin
 variable = None
 unique_window = None
 room = None
-room_number = None
+room_number = 0
 pos = canvas_room.coords(4)
+power = None
+monster_health = None
 
 def trading(event):
     global unique_window
@@ -102,19 +104,102 @@ def click(event):
 
 
 def meet_monster():
-    global health_points
-    global damage
-    global coins
     global variable
     global room_number
-    power = randint(-2, 2)
-    power = (power * room_number / 2)
+    global power
+    global monster_health
+    power = room_number * 2
     monster_health = power + randint(-3, 3)
     def protection(event):
-        canvas_battle.move(100, 0)
-        canvas_battle.itemconfigure(3, image=picture_warrior_protection)
+        global health_points
+        global damage
+        global power
+        global monster_health
+        for m in range(1, 2):
+            canvas_battle.move(2, -5, 0)
+            monster_window.update()
+            sleep(0.02)
+        canvas_battle.itemconfigure(2, image=picture_warrior_protection)
         power /= 2
+        for m in range(1, 40):
+            canvas_battle.move(3, -5, 0)
+            monster_window.update()
+            sleep(0.01)
         health_points -= power
+        canvas_text.itemconfigure(1, text='Твое здоровье: {0}'.format(health_points), font=("Comic Sans MS", 15))
+        power *= 2
+        if health_points <= 0:
+            monster_window.destroy()
+            if messagebox.askyesno('Олег лег спать', 'Хотите ли вы выйти из приложения?'):
+                adventure_window.destroy()
+            else:
+                health_points = 10
+                damage = 1
+                coins = 0
+                canvas_text.itemconfigure(1, text='Твое здоровье: {0}'.format(health_points), font=("Comic Sans MS", 15))
+                canvas_text.itemconfigure(2, text='Твой урон: {0}'.format(damage), font=("Comic Sans MS", 15))
+                canvas_text.itemconfigure(3, text='Твои монеты: {0}'.format(coins), font=("Comic Sans MS", 15))
+                room_geniration()
+        canvas_battle.itemconfigure(2, image=picture_warrior_attack)
+        monster_health -= damage / 2
+        sleep(0.1)
+        canvas_battle.itemconfigure(2, image=picture_warrior)
+        for m in range(1, 40):
+            canvas_battle.move(3, 5, 0)
+            monster_window.update()
+            sleep(0.01)
+        for m in range(1, 2):
+            canvas_battle.move(2, 5, 0)
+            monster_window.update()
+            sleep(0.02)
+    def attack(event):
+        global health_points
+        global damage
+        global coins
+        global power
+        global monster_health
+        for m in range(1, 40):
+            canvas_battle.move(2, 5, 0)
+            monster_window.update()
+            sleep(0.01)
+        canvas_battle.itemconfigure(2, image=picture_warrior_attack)
+        monster_health -= damage
+        canvas_battle.itemconfigure(2, image=picture_warrior_attack)
+        sleep(0.1)
+        canvas_battle.itemconfigure(2, image=picture_warrior)
+        for m in range(1, 40):
+            canvas_battle.move(2, -5, 0)
+            monster_window.update()
+            sleep(0.01)
+        if monster_health <=0:
+            monster_window.destroy()
+            received_coins = randint(1, 5)
+            messagebox.showinfo('Вы победили монстра!', 'Вы получили {0} монет'.format(received_coins))
+            coins += received_coins
+            canvas_text.itemconfigure(3, text='Твои монеты: {0}'.format(coins), font=("Comic Sans MS", 15))
+        else:
+            for m in range(1, 40):
+                canvas_battle.move(3, -5, 0)
+                monster_window.update()
+                sleep(0.01)
+            health_points -= power
+            canvas_text.itemconfigure(1, text='Твое здоровье: {0}'.format(health_points), font=("Comic Sans MS", 15))
+            for m in range(1, 40):
+                canvas_battle.move(3, 5, 0)
+                monster_window.update()
+                sleep(0.01)
+            if health_points <= 0:
+                monster_window.destroy()
+                if messagebox.askyesno('Олег лег спать', 'Хотите ли вы выйти из приложения?'):
+                    adventure_window.destroy()
+                else:
+                    health_points = 10
+                    damage = 1
+                    coins = 0
+                    canvas_text.itemconfigure(1, text='Твое здоровье: {0}'.format(health_points), font=("Comic Sans MS", 15))
+                    canvas_text.itemconfigure(2, text='Твой урон: {0}'.format(damage), font=("Comic Sans MS", 15))
+                    canvas_text.itemconfigure(3, text='Твои монеты: {0}'.format(coins), font=("Comic Sans MS", 15))
+                    room_geniration()
 
     meet = randint(1, variable)
     if meet == 1:
@@ -129,9 +214,10 @@ def meet_monster():
         canvas_battle.create_image(400, 400, image=picture_room3)
         canvas_battle.create_image(10,  49, anchor = NW, image=picture_warrior)
         canvas_battle.create_image(300,  49, anchor = NW, image=picture_enemy1)
+        if randint(1, 2) == 1:
+            canvas_battle.itemconfigure(3, image=picture_enemy2)
         canvas_battle.bind_all('<KeyPress-0>', protection)
         canvas_battle.bind_all('<KeyPress-1>', attack)
-
     else:
         if variable > 300:
             variable -= 1
@@ -158,6 +244,7 @@ def room_geniration():
     global variable
     global room_number
     global room
+    room_number += 1
     variable = 500
     unique_window = None
     room = randint(1, 3)
