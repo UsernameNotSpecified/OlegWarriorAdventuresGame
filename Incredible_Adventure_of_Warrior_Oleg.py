@@ -11,7 +11,7 @@ adventure_window.resizable(False, False)
 
 canvas_room = Canvas(adventure_window, width=840, height=840, bg='black')
 canvas_room.pack()
-canvas_text = Canvas(adventure_window, width=840, height=100, bg='orange')
+canvas_text = Canvas(adventure_window, width=840, height=99, bg='orange')
 canvas_text.pack()
 
 picture_lawn = PhotoImage(file='pic/picture_lawn.png')
@@ -30,21 +30,22 @@ picture_enemy1 = PhotoImage(file='pic/picture_enemy1.png')
 picture_enemy2 = PhotoImage(file='pic/picture_enemy2.png')
 
 health_points = 10
-damage = 1
+damage = 2
 coins = 0
+room_number = 0
 
 canvas_room.create_image(420, 420, image = picture_lawn)
 canvas_room.create_image(420, 420, image = picture_trader)
 canvas_room.create_image(420, 420, image = picture_pointer)
 canvas_room.create_image(420, 420, image = picture_warrior)
-canvas_text.create_text(210, 50, text = 'Твое здоровье: {0}'.format(health_points), font=("Comic Sans MS", 15))
-canvas_text.create_text(420, 50, text = 'Твой урон: {0}'.format(damage), font=("Comic Sans MS", 15))
-canvas_text.create_text(630, 50, text = 'Твои монеты: {0}'.format(coins), font=("Comic Sans MS", 15))
+canvas_text.create_text(210, 66, text = 'Твое здоровье: {0}'.format(health_points), font=("Comic Sans MS", 15))
+canvas_text.create_text(420, 66, text = 'Твой урон: {0}'.format(damage), font=("Comic Sans MS", 15))
+canvas_text.create_text(630, 66, text = 'Твои монеты: {0}'.format(coins), font=("Comic Sans MS", 15))
+canvas_text.create_text(420, 33, text = 'Номер комнаты: {0}'.format(room_number), font=("Comic Sans MS", 15))
 
 variable = None
 unique_window = None
 room = None
-room_number = 0
 pos = canvas_room.coords(4)
 power = None
 monster_health = None
@@ -127,6 +128,7 @@ def meet_monster():
         global coins
         global power
         global monster_health
+        global room_number
         for m in range(1, 2):
             canvas_battle.move(2, -5, 0)
             monster_window.update()
@@ -148,6 +150,7 @@ def meet_monster():
                 health_points = 10
                 damage = 1
                 coins = 0
+                room_number = 0
                 canvas_text.itemconfigure(1, text='Твое здоровье: {0}'.format(health_points), font=("Comic Sans MS", 15))
                 canvas_text.itemconfigure(2, text='Твой урон: {0}'.format(damage), font=("Comic Sans MS", 15))
                 canvas_text.itemconfigure(3, text='Твои монеты: {0}'.format(coins), font=("Comic Sans MS", 15))
@@ -164,10 +167,10 @@ def meet_monster():
                 messagebox.showinfo('Вы победили монстра!', 'Вы получили {0} монет'.format(received_coins))
                 coins += received_coins
                 canvas_text.itemconfigure(3, text='Твои монеты: {0}'.format(coins), font=("Comic Sans MS", 15))
-                canvas_room.bind_all('<KeyPress-Up>')
-                canvas_room.bind_all('<KeyPress-Down>')
-                canvas_room.bind_all('<KeyPress-Left>')
-                canvas_room.bind_all('<KeyPress-Right>')
+                canvas_room.bind_all('<KeyPress-Up>', move)
+                canvas_room.bind_all('<KeyPress-Down>', move)
+                canvas_room.bind_all('<KeyPress-Left>', move)
+                canvas_room.bind_all('<KeyPress-Right>', move)
             else:
                 for m in range(1, 40):
                     canvas_battle.move(3, 5, 0)
@@ -187,6 +190,7 @@ def meet_monster():
         global coins
         global power
         global monster_health
+        global room_number
         for m in range(1, 40):
             canvas_battle.move(2, 5, 0)
             monster_window.update()
@@ -195,7 +199,6 @@ def meet_monster():
         canvas_battle.update()
         sleep(0.2)
         monster_health -= damage
-        print(monster_health)
         canvas_battle.itemconfigure(2, image=picture_warrior)
         if monster_health <=0:
             monster_window.destroy()
@@ -203,10 +206,10 @@ def meet_monster():
             messagebox.showinfo('Вы победили монстра!', 'Вы получили {0} монет'.format(received_coins))
             coins += received_coins
             canvas_text.itemconfigure(3, text='Твои монеты: {0}'.format(coins), font=("Comic Sans MS", 15))
-            canvas_room.bind_all('<KeyPress-Up>')
-            canvas_room.bind_all('<KeyPress-Down>')
-            canvas_room.bind_all('<KeyPress-Left>')
-            canvas_room.bind_all('<KeyPress-Right>')
+            canvas_room.bind_all('<KeyPress-Up>', move)
+            canvas_room.bind_all('<KeyPress-Down>', move)
+            canvas_room.bind_all('<KeyPress-Left>', move)
+            canvas_room.bind_all('<KeyPress-Right>', move)
         else:
             for m in range(1, 40):
                 canvas_battle.move(2, -5, 0)
@@ -230,6 +233,7 @@ def meet_monster():
                     health_points = 10
                     damage = 1
                     coins = 0
+                    room_number = 0
                     canvas_text.itemconfigure(1, text='Твое здоровье: {0}'.format(health_points), font=("Comic Sans MS", 15))
                     canvas_text.itemconfigure(2, text='Твой урон: {0}'.format(damage), font=("Comic Sans MS", 15))
                     canvas_text.itemconfigure(3, text='Твои монеты: {0}'.format(coins), font=("Comic Sans MS", 15))
@@ -263,7 +267,6 @@ def meet_monster():
         if variable > 200:
             variable -= 2
 
-
 def leave(event):
     canvas_room.tag_unbind(3, '<Button-1>')
     canvas_room.itemconfigure(4, image = picture_warrior)
@@ -281,61 +284,63 @@ def leave(event):
         sleep(00.01)
     room_geniration()
 
+def move(event):
+    global health_points
+    global damage
+    global coins
+    global pos
+    pos = canvas_room.coords(4)
+    if (room == 2 and (pos[0] >= 140 and pos[0] <= 220 and pos[1] >= 40 and pos[1] <= 680 or
+                       pos[0] >= 140 and pos[0] <= 700 and pos[1] >= 640 and pos[1] <= 680 or
+                       pos[0] >= 140 and pos[0] <= 460 and pos[1] >= 400 and pos[1] <= 440 or
+                       pos[0] >= 140 and pos[0] <= 700 and pos[1] >= 160 and pos[1] <= 200 or
+                       pos[0] >= 620 and pos[0] <= 700 and pos[1] >= 160 and pos[1] <= 440 or
+                       pos[0] >= 620 and pos[0] <= 820 and pos[1] >= 400 and pos[1] <= 440) or
+            room == 3 and (pos[0] >= 20 and pos[0] <= 460 and pos[1] >= 160 and pos[1] <= 200 or
+                           pos[0] >= 380 and pos[0] <= 460 and pos[1] >= 160 and pos[1] <= 440 or
+                           pos[0] >= 140 and pos[0] <= 700 and pos[1] >= 400 and pos[1] <= 440 or
+                           pos[0] >= 140 and pos[0] <= 220 and pos[1] >= 400 and pos[1] <= 680 or
+                           pos[0] >= 620 and pos[0] <= 700 and pos[1] >= 160 and pos[1] <= 680 or
+                           pos[0] >= 380 and pos[0] <= 460 and pos[1] >= 640 and pos[1] <= 800 or
+                           pos[0] >= 380 and pos[0] <= 700 and pos[1] >= 640 and pos[1] <= 680)):
+        if event.keysym == 'Up':
+            canvas_room.itemconfigure(4, image=picture_warrior_up)
+            canvas_room.move(4, 0, -5)
+        elif event.keysym == 'Down':
+            canvas_room.itemconfigure(4, image=picture_warrior)
+            canvas_room.move(4, 0, 5)
+        elif event.keysym == 'Left':
+            canvas_room.itemconfigure(4, image=picture_warrior_left)
+            canvas_room.move(4, -5, 0)
+        elif event.keysym == 'Right':
+            canvas_room.itemconfigure(4, image=picture_warrior)
+            canvas_room.move(4, 5, 0)
+        meet_monster()
+    elif room == 1:
+        pass
+    else:
+        canvas_room.itemconfigure(4, image=picture_warrior_fall)
+        if messagebox.askyesno('ВЫ УРОНИЛИ ОЛЕГА!!!', 'Хотите ли вы выйти из приложения?'):
+            adventure_window.destroy()
+        else:
+            health_points = 10
+            damage = 1
+            coins = 0
+            canvas_text.itemconfigure(1, text='Твое здоровье: {0}'.format(health_points), font=("Comic Sans MS", 15))
+            canvas_text.itemconfigure(2, text='Твой урон: {0}'.format(damage), font=("Comic Sans MS", 15))
+            canvas_text.itemconfigure(3, text='Твои монеты: {0}'.format(coins), font=("Comic Sans MS", 15))
+            room_geniration()
+
 def room_geniration():
     global unique_window
     global variable
     global room_number
     global room
     room_number += 1
+    canvas_text.itemconfigure(4, text='Номер комнаты: {0}'.format(room_number), font=("Comic Sans MS", 15))
     variable = 400
     unique_window = None
     room = randint(1, 3)
-    def move(event):
-        global health_points
-        global damage
-        global coins
-        global pos
-        pos = canvas_room.coords(4)
-        if (room == 2 and (pos[0] >= 140 and pos[0] <= 220 and pos[1] >= 40 and pos[1] <= 680 or
-                            pos[0] >= 140 and pos[0] <= 700 and pos[1] >= 640 and pos[1] <= 680 or
-                            pos[0] >= 140 and pos[0] <= 460 and pos[1] >= 400 and pos[1] <= 440 or
-                            pos[0] >= 140 and pos[0] <= 700 and pos[1] >= 160 and pos[1] <= 200 or
-                            pos[0] >= 620 and pos[0] <= 700 and pos[1] >= 160 and pos[1] <= 440 or
-                            pos[0] >= 620 and pos[0] <= 820 and pos[1] >= 400 and pos[1] <= 440) or
-                room == 3 and (pos[0] >= 20 and pos[0] <= 460 and pos[1] >= 160 and pos[1] <= 200 or
-                            pos[0] >= 380 and pos[0] <= 460 and pos[1] >= 160 and pos[1] <= 440 or
-                            pos[0] >= 140 and pos[0] <= 700 and pos[1] >= 400 and pos[1] <= 440 or
-                            pos[0] >= 140 and pos[0] <= 220 and pos[1] >= 400 and pos[1] <= 680 or
-                            pos[0] >= 620 and pos[0] <= 700 and pos[1] >= 160 and pos[1] <= 680 or
-                            pos[0] >= 380 and pos[0] <= 460 and pos[1] >= 640 and pos[1] <= 800 or
-                            pos[0] >= 380 and pos[0] <= 700 and pos[1] >= 640 and pos[1] <= 680)):
-            if event.keysym == 'Up':
-                canvas_room.itemconfigure(4, image = picture_warrior_up)
-                canvas_room.move(4, 0, -5)
-            elif event.keysym == 'Down':
-                canvas_room.itemconfigure(4, image = picture_warrior)
-                canvas_room.move(4, 0, 5)
-            elif event.keysym == 'Left':
-                canvas_room.itemconfigure(4, image = picture_warrior_left)
-                canvas_room.move(4, -5, 0)
-            elif event.keysym == 'Right':
-                canvas_room.itemconfigure(4, image = picture_warrior)
-                canvas_room.move(4, 5, 0)
-            meet_monster()
-        elif room == 1:
-            pass
-        else:
-            canvas_room.itemconfigure(4, image=picture_warrior_fall)
-            if messagebox.askyesno('ВЫ УРОНИЛИ ОЛЕГА!!!', 'Хотите ли вы выйти из приложения?'):
-                adventure_window.destroy()
-            else:
-                health_points = 10
-                damage = 1
-                coins = 0
-                canvas_text.itemconfigure(1, text='Твое здоровье: {0}'.format(health_points), font=("Comic Sans MS", 15))
-                canvas_text.itemconfigure(2, text='Твой урон: {0}'.format(damage), font=("Comic Sans MS", 15))
-                canvas_text.itemconfigure(3, text='Твои монеты: {0}'.format(coins), font=("Comic Sans MS", 15))
-                room_geniration()
     canvas_room.bind_all('<KeyPress-Up>', move)
     canvas_room.bind_all('<KeyPress-Down>', move)
     canvas_room.bind_all('<KeyPress-Left>', move)
