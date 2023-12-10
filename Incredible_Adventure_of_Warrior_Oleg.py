@@ -5,9 +5,10 @@ from random import *
 
 adventure_window = Tk()
 adventure_window.title('Невероятное приключение воина по имени Олег')
-adventure_window.geometry("840x940+500+20")
 adventure_window.attributes('-toolwindow', True)
 adventure_window.resizable(False, False)
+
+adventure_window.geometry("840x940+500+20")
 
 canvas_room = Canvas(adventure_window, width=840, height=840, bg='black')
 canvas_room.pack()
@@ -111,10 +112,12 @@ def meet_monster():
     power = room_number + 1
     monster_health = power + randint(-3, 3)
     def closing_monster():
+        global room_number
         if messagebox.askyesno('Олег - не трус!', 'Вы действительно хотите сбежать?'):
             monster_window.destroy()
+            room_number = 0
             health_points = 10
-            damage = 1
+            damage = 2
             coins = 0
             canvas_text.itemconfigure(1, text='Твое здоровье: {0}'.format(health_points), font=("Comic Sans MS", 15))
             canvas_text.itemconfigure(2, text='Твой урон: {0}'.format(damage), font=("Comic Sans MS", 15))
@@ -148,7 +151,7 @@ def meet_monster():
                 adventure_window.destroy()
             else:
                 health_points = 10
-                damage = 1
+                damage = 2
                 coins = 0
                 room_number = 0
                 canvas_text.itemconfigure(1, text='Твое здоровье: {0}'.format(health_points), font=("Comic Sans MS", 15))
@@ -231,7 +234,7 @@ def meet_monster():
                     adventure_window.destroy()
                 else:
                     health_points = 10
-                    damage = 1
+                    damage = 2
                     coins = 0
                     room_number = 0
                     canvas_text.itemconfigure(1, text='Твое здоровье: {0}'.format(health_points), font=("Comic Sans MS", 15))
@@ -289,6 +292,7 @@ def move(event):
     global damage
     global coins
     global pos
+    global room_number
     pos = canvas_room.coords(4)
     if (room == 2 and (pos[0] >= 140 and pos[0] <= 220 and pos[1] >= 40 and pos[1] <= 680 or
                        pos[0] >= 140 and pos[0] <= 700 and pos[1] >= 640 and pos[1] <= 680 or
@@ -323,8 +327,9 @@ def move(event):
         if messagebox.askyesno('ВЫ УРОНИЛИ ОЛЕГА!!!', 'Хотите ли вы выйти из приложения?'):
             adventure_window.destroy()
         else:
+            room_number = 0
             health_points = 10
-            damage = 1
+            damage = 2
             coins = 0
             canvas_text.itemconfigure(1, text='Твое здоровье: {0}'.format(health_points), font=("Comic Sans MS", 15))
             canvas_text.itemconfigure(2, text='Твой урон: {0}'.format(damage), font=("Comic Sans MS", 15))
